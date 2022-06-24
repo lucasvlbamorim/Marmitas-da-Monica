@@ -11,10 +11,10 @@ const mysql = require("mysql");
 const sha1 = require("sha1");
 //create a server object:
 const connection = mysql.createConnection({
-  host: "31.170.160.52",
-  user: "u825179380_QroXw",
-  password: "Aulabanco123@",
-  database: "u825179380_ab2co",
+  host: "",
+  user: "",
+  password: "",
+  database: "",
   port: "3306"
 });
 
