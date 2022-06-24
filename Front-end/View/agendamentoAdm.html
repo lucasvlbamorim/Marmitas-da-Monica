@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>Marmitas da Mônica</title>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link rel='stylesheet' type='text/css' media='screen' href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css'>
+        <script src='main.js'></script>
+    </head>
+
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: #392b2a;">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <nav class="navbar navbar-light" >
+                        <div class="container-fluid">
+                            <a class="navbar-brand" href="#">
+                            <img src="../src/imagens/logo.jpg" alt="" width="90" height="90" class="d-inline-block align-text-top"></img>
+                            </a>
+                        </div>
+                    </nav>
+                    <div class="collapse navbar-collapse fs-4" id="navbarTogglerDemo01">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="/" style="color:#fec619;">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/cardapioAdm" style="color:#fec619;">Cardapio</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/agendamentoAdm" style="color:#fec619;" >Agendamento</a>
+                            </li>
+                        </ul>
+                        <a class="navbar-brand" href="https://www.instagram.com/marmitas_damonica/">
+                        <img src="../src/imagens/insta.png" alt="" width="38" height="38" class="d-inline-block align-text-top"></img>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </header></br>
+      
+        <section>
+            <table class="table table-bordered">
+                <thead>
+                    <th>Detalhar</th>
+                    <th>Data do Pedido</th>
+                    <th>Data da Entrega</th>
+                    <th>Turno</th>
+                    <th>Forma de Recebimento</th>
+                    <th>Status</th>
+                </thead>
+                <tbody>
+                  <%  if(typeof agendamento != 'undefined'){ %>
+                    <% agendamento.forEach((agendamento)=>{ 
+                      switch(agendamento.turno){
+                        case 1:
+                          turno = 'Almoço';
+                        break;
+                        case 2:
+                          turno = 'Janta';
+                        break;
+                        case 3:
+                          turno = 'Almoço/janta';
+                        break;
+                      } 
+                      
+                      switch(agendamento.status){
+                        case 0:
+                            status  = 'Recebido';
+                            colorStatus = 'bg-secondary';
+                          break;
+                        case 1:
+                            status  = 'Em andamento';
+                            colorStatus = 'bg-warning';
+                          break;
+                        case 2:
+                            status  = 'Pronto';
+                            colorStatus = 'bg-info';
+                          break;
+                       case 3:
+                          status  = 'Entregue';
+                          colorStatus = 'bg-success';
+                        break;
+                      case 4:
+                          status  = 'Cancelado';
+                          colorStatus = 'bg-danger';
+                        break;
+                      }
+                      
+                      recebimento = (agendamento.entrega == 2 ?'Retirada':'Entrega')
+                      dataEntrega = new Date(agendamento.dataEntrega)
+                      ano = dataEntrega.getFullYear();
+                      mes = dataEntrega.getMonth().toString().padStart(2,'0');
+                      dia = dataEntrega.getDate().toString().padStart(2,'0');
+                      horas =  dataEntrega.getHours();
+                      minutos = dataEntrega.getMinutes().toString().padStart(2,'0');
+                      dataEntrega = dia+"/"+mes+"/"+ano+" "+horas+":"+minutos
+
+                      dataPedido = new Date(agendamento.dataPedido)
+                      ano = dataPedido.getFullYear();
+                      mes = dataPedido.getMonth().toString().padStart(2,'0');
+                      dia = dataPedido.getDate().toString().padStart(2,'0');
+                      horas =  dataPedido.getHours();
+                      minutos = dataPedido.getMinutes().toString().padStart(2,'0');
+                      dataPedido = dia+"/"+mes+"/"+ano+" "+horas+":"+minutos
+                      %>
+                        <tr>
+                          <td><button type="button" class="btn btn-warning"data-bs-toggle="modal" data-bs-target="#ModalDetalharAgendamento" onclick="detalharAgendamento(<%= agendamento.idAgendamento %>)">Detalhar</button></td>
+                          <td><%= dataPedido %></td>
+                          <td><%= dataEntrega %></td>
+                          <td><%= turno %></td>
+                          <td><%= recebimento  %></td>
+                          <td><span class="badge <%= colorStatus %>"><%= status %></span></td>
+                        </tr>
+                    <% }) 
+                    } %>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <div class="modal fade" id="ModalDetalharAgendamento" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-fullscreen-sm-down modal-fullscreen-md-down">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h5 class="modal-title" id="exampleModalLabel">Detalhes do Pedido</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="/alterarStatus" method="post">
+                            <input type="hidden" name="idAgendamento" id="idAgendamento">
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div id="divPrato"></div>
+                                    <!-- <label for="dias" class="col-form-label">Quantidade de Dias: <label id="dias"></label></br> -->
+                                    <label>--------------------------------------------</label></br>
+                                    <label for="cpf" class="col-form-label">CPF: <label id="cpfUsuario"></label></label></br>
+                                    <label for="nome" class="col-form-label">Nome: <label id="nome"></label></label></br>
+                                    <label for="telefone" class="col-form-label">Telefone: <label id="telefone"></label></label></br>
+                                    <label for="email" class="col-form-label">Email: <label id="email"></label></label></br>
+                                    <label>---------------------------------------------</label></br>
+                                    <label for="cep" class="col-form-label">CEP: <label id="cep"></label></label></br>
+                                    <label for="logradouro" class="col-form-label">Logradouro: <label id="logradouro"></label></label></br>
+                                    <label for="bairro" class="col-form-label">Bairro: <label id="bairro"></label></label></br>
+                                    <label for="cidade" class="col-form-label">Cidade: <label id="cidade"></label></label></br>
+                                    <label for="uf" class="col-form-label">UF: <label id="uf"></label></label></br>
+                                    <label for="complemento" class="col-form-label">Complemento: <label id="complemento"></label></label></br>
+                                    <label for="numero" class="col-form-label">Numero: <label id="numero"></label></label></br>
+                                    <div class="text-center"><strong>Valor: R$<label id="valor"></label></strong></div></br></br>
+                                      <label for="status">Alterar Status</label>
+                                      <select class="form-select" name="status" id="status">
+                                        <option selected value="">Selecione uma opção</option>
+                                        <option value="0">Recebido</option>
+                                        <option value="1">Em andamento</option>
+                                        <option value="2">Pronto</option>
+                                        <option value="3">Entregue</option>
+                                        <option value="4">Cancelado</option>
+                                      </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="container-fluid">
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-warning" style="color: white;">Alterar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #392b2a;">
+                <div class="container-fluid">
+                    <nav class="navbar navbar-light"style="background-color: #392b2a;">
+                        <div class="container-fluid">
+                            <a class="navbar-brand" href="#">
+                            <img src="../src/imagens/logo.jpg" alt="" width="100" height="100" class="d-inline-block align-text-top"></img>
+                            </a>
+                        </div>
+                    </nav>
+                    <div class="collapse navbar-collapse fs-4" id="navbarTogglerDemo01" style="color:#faefe9;">
+                        <div class="container">
+                            <div class="container mb-2">
+                                <div class="row align-items-start">
+                                    <div class="col"></div>
+                                    <div class="col"></br></div>
+                                    <div class="col"></div>
+                                </div>
+                                <div class="row align-items-center">
+                                    <div class="col"></div>
+                                    <div class="col"></br></div>
+                                    <div class="col"></div>
+                                </div>
+                                <div class="row align-items-center" style="padding-top: 50px;">
+                                    <div class="col"></div>
+                                    <div class="col" style="color:#fec619">
+                                        <h6>@Copyright Marmitas da Monica</h6>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </footer>
+          
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+      <script src="../src/main.js"> </script>
+    </body>
+</html>
