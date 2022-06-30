@@ -18,17 +18,6 @@ const connection = mysql.createConnection({
   port: "3306"
 });
 
-app.get("/", (req, res) => {
-  connection.query("select * from usuario", function (erro, linhas, colunas) {
-    if (erro) {
-      console.log(erro.message);
-    }
-    //res.render(__dirname+"/views/listar.html")
-    var resposta = JSON.parse(JSON.stringify(linhas));
-    res.send(resposta);
-  });
-});
-
 app.post("/cadastrarCardapio", (req, res) => {
   let today = dayjs();
   var tipo = req.body.tipo;
